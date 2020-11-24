@@ -1,18 +1,55 @@
+#include "pch.h"
 #include "pattern_scanner.h"
 
-Pattern::Pattern(int processId, wchar_t* moduleName, 
-				wchar_t* processName, char* pattern, char* mask)
-	: _processId(processId),
-	_moduleName(moduleName),
-	_processName(processName),
-	_pattern(pattern),
-	_mask(mask)
-{
+/*
+	This function manages the whole pattern scanning progress
+	In:
+		pattern - the scanned pattern
+		mask - the scanned mask (for the pattern)
 
-}
+	Out:
+		the desired address
+*/
 
-uintptr_t Pattern::PatternScan() {
+uintptr_t PatternScanning::PatternScan(BYTE* pattern, char* mask) {
+	const auto hProcess = ::GetCurrentProcess();
+	const auto processId = ::GetProcessId(hProcess);
+	const auto hModule = this->fnGetModuleHandle(processId);
 
+	MODULEINFO moduleInfo{};
+	BYTE* moduleContent{};
+	uintptr_t signatureIndex{};
+	uintptr_t signatureOffset{};
+
+	::GetModuleInformation(hProcess, hModule, &moduleInfo, sizeof(moduleInfo));
+	moduleContent = new BYTE[moduleInfo.SizeOfImage];
+
+	if (moduleContent == NULL) {
+		::CloseHandle(hProcess);
+		exit(1);
+	}
+
+	if (!::ReadProcessMemory(hProcess, (void*)hModule, (void*)moduleContent, (size_t)moduleInfo.SizeOfImage, NULL)) {
+		delete[] moduleContent;
+		::CloseHandle(hProcess);
+
+		exit(1);
+	}
+
+	signatureIndex = this->FindPattern(moduleContent, moduleInfo.SizeOfImage, pattern, mask);
+	if (!signatureIndex) {
+		delete[] moduleContent;
+		::CloseHandle(hProcess);
+
+		exit(1);
+	}
+
+	memcpy(&signatureOffset, &moduleContent[signatureIndex], sizeof(DWORD));
+
+	delete[] moduleContent;
+	::CloseHandle(hProcess);
+
+	return signatureOffset;
 }
 
 /*
@@ -24,64 +61,30 @@ uintptr_t Pattern::PatternScan() {
 		an index where the offset is located in the byte array of the module content
 */
 
-uintptr_t Pattern::FindPattern(BYTE* moduleContent, unsigned int moduleSize, char* pattern, char* mask) {
-	unsigned int i, j = 0;
-	int flag = TRUE;
+uintptr_t PatternScanning::FindPattern(BYTE* moduleContent, unsigned int moduleSize, BYTE* pattern, char* mask) const {
+	bool flag = true;
 
-	for (i = 0; i < moduleSize; i++) {
-		flag = TRUE;
+	for (unsigned i{}; i < moduleSize; i++) {
+		flag = true;
 
-		for (j = 0; j < strlen(mask); j++) {
+		for (unsigned j{}; j < strlen(mask); j++) {
 			if (mask[j] == '?') {
 				continue;
 			}
 			if (pattern[j] != moduleContent[i + j]) {
-				flag = FALSE;
+				flag = false;
 				break;
 			}
 		}
 
-		if (flag == TRUE) {
+		if (flag == true) {
 			return i;
 		}
 	}
 
-	return;
+	return NULL;
 }
 
-/*
-	This functuion returns process ID by the name
-	In:
-		process name
-	Out:
-		process ID
-*/
-
-uintptr_t Pattern::GetProcessIdByName(wchar_t* processName) {
-	PROCESSENTRY32 processEntry{};
-	HANDLE snapShot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, NULL);
-
-	if (!snapShot)
-		return;
-
-	processEntry.dwSize = sizeof(processEntry);
-
-	if (!Process32First(snapShot, &processEntry))
-		CloseHandle(snapShot);
-		return;
-
-	do
-	{
-		if (!wcscmp(processEntry.szExeFile, processName))
-		{
-			CloseHandle(snapShot);
-			return processEntry.th32ProcessID;
-		}
-	} while (Process32Next(snapShot, &processEntry));
-
-	CloseHandle(snapShot);
-	return;
-}
 
 /*
 	This function returns module handle - module base address
@@ -91,10 +94,11 @@ uintptr_t Pattern::GetProcessIdByName(wchar_t* processName) {
 		module handle - module base address
 */
 
-MODULEENTRY32 Pattern::fnGetModuleHandle(const int processId, const wchar_t* moduleName) {
+HMODULE PatternScanning::fnGetModuleHandle(const int processId) {
 	MODULEENTRY32 modEntry{};
 	HANDLE hSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPMODULE | TH32CS_SNAPMODULE32, processId);
-	
+	wchar_t* wModuleName{};
+
 	if (hSnapshot != INVALID_HANDLE_VALUE)
 	{
 		modEntry.dwSize = sizeof(MODULEENTRY32);
@@ -102,7 +106,8 @@ MODULEENTRY32 Pattern::fnGetModuleHandle(const int processId, const wchar_t* mod
 		{
 			do
 			{
-				if (wcscmp(modEntry.szModule, moduleName) == 0)
+				wModuleName = (wchar_t*)modEntry.szModule;
+				if (wcscmp(wModuleName, this->_moduleName) == 0)
 				{
 					break;
 				}
@@ -111,5 +116,5 @@ MODULEENTRY32 Pattern::fnGetModuleHandle(const int processId, const wchar_t* mod
 		CloseHandle(hSnapshot);
 	}
 
-	return modEntry;
+	return modEntry.hModule;
 }

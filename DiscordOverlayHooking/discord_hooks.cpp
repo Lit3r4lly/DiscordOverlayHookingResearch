@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "discord_hooks.h"
 
 void DiscordHook::CreateHook(LPVOID pTarget, LPVOID pDetour, LPVOID* ppOriginal) const {

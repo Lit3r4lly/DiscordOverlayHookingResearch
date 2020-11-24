@@ -1,26 +1,27 @@
 #pragma once
 
+#include <iostream>
 #include <Windows.h>
 #include <TlHelp32.h>
+#include <Psapi.h>
 
-class Pattern
+class PatternScanning
 {
 public:
-	Pattern() = default;
-	~Pattern() = default;
+	PatternScanning() = default;
+	~PatternScanning() = default;
 
-	Pattern(int processId, wchar_t* moduleName, wchar_t* processName, char* pattern, char* mask);
-	
-	uintptr_t PatternScan();
-	uintptr_t FindPattern(BYTE* moduleContent, unsigned int moduleSize, char* pattern, char* mask);
-	uintptr_t GetProcessIdByName(wchar_t* processName);
-	MODULEENTRY32 fnGetModuleHandle(const int processId, const wchar_t* moduleName);
+	PatternScanning(wchar_t* moduleName, wchar_t* processName)
+		: _moduleName(moduleName),
+		_processName(processName)
+	{}
+
+	uintptr_t PatternScan(BYTE* pattern, char* mask);
+	uintptr_t FindPattern(BYTE* moduleContent, unsigned int moduleSize, BYTE* pattern, char* mask) const;
+	HMODULE fnGetModuleHandle(const int processId);
 
 private:
-	uintptr_t _processId;
 	wchar_t* _moduleName;
 	wchar_t* _processName;
-	char* _pattern;
-	char* _mask;
 
 };
