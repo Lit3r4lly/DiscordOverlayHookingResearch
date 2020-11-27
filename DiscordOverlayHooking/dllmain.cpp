@@ -1,32 +1,38 @@
-﻿
-#include "pch.h"
+﻿#include "pch.h"
 #include "pattern_scanner.h"
 
 void HookEx() {
-    const char* moduleName = "DiscordHook64.dll";
-    const char* processName = "ida64.exe";
+    const auto hProcess = ::GetCurrentProcess();
+    const auto hModule = ::GetModuleHandle("DiscordHook64.dll");
 
-    const size_t moduleNameLen = strlen(moduleName) + 1;
+    BYTE fnCreateHookPattern[] = "\x40\x53\x55\x56\x57\x41\x54\x41\x56\x41\x57\x48\x83\xEC\x60";
+    char fnCreateHookMask[] = "xxxxxxxxxxxxxxx";
 
-    wchar_t* wModuleName = new wchar_t[moduleNameLen];
-    mbstowcs(wModuleName, moduleName, moduleNameLen);
+    AllocConsole();
+    freopen("CONOUT$", "w", stdout);
 
+    std::cout << "[!] Starting to hook discord overlay" << '\n';
 
-    const size_t processNameLen = strlen(processName) + 1;
+    std::cout << "[?] Process Handle - 0x" << (void*)hProcess << '\n';
+    std::cout << "[?] DiscordHook64.dll handle - 0x" << (void*)hModule << '\n';
 
-    wchar_t* wProcessName = new wchar_t[processNameLen];
-    mbstowcs(wProcessName, processName, processNameLen);
+    std::cout << "[?] Pattern - " << (BYTE*)fnCreateHookPattern << '\n';
+    std::cout << "[?] Mask - " << fnCreateHookMask << '\n';
 
-   PatternScanning newObj(wModuleName, wProcessName);
-    uintptr_t addr = newObj.PatternScan((BYTE*)"\x40\x53\x55\x56\x57\x41\x54\x41\x56\x41\x57\x48\x83\xEC\x60", (char*)"xxxxxxxxxxxxxxx");
+    PatternScanning newObj(hProcess, hModule);
+    uintptr_t addr = newObj.PatternScan(fnCreateHookPattern, fnCreateHookMask);
 
-    ::MessageBoxA(NULL, "Hi", "hi", MB_OK);
+    std::cout << "[-] CreateHook address - 0x" << (void*)addr << '\n';
+    
+    std::cout << "\n[!] Finished, you can close the console right now." << '\n';
+    system("PAUSE");
+    FreeConsole();
 }
 
-BOOL APIENTRY DllMain( HMODULE hModule,
-                       DWORD  ul_reason_for_call,
-                       LPVOID lpReserved
-                     )
+BOOL APIENTRY DllMain(HMODULE hModule,
+                    DWORD  ul_reason_for_call,
+                    LPVOID lpReserved
+)
 {
     switch (ul_reason_for_call)
     {
@@ -39,4 +45,3 @@ BOOL APIENTRY DllMain( HMODULE hModule,
     }
     return TRUE;
 }
-
