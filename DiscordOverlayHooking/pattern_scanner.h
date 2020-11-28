@@ -12,7 +12,7 @@ public:
 	PatternScanning(HANDLE hProcess, HMODULE hModule);
 
 	uintptr_t PatternScan(BYTE* pattern, char* mask);
-	uintptr_t FindPattern(BYTE* moduleContent, unsigned int moduleSize, BYTE* pattern, char* mask);
+	unsigned FindPattern(std::uint8_t* moduleContent, unsigned int moduleSize, BYTE* pattern, char* mask);
 
 private:
 	HANDLE _hProcess;
