@@ -28,32 +28,20 @@ PatternScanning::PatternScanning(HANDLE hProcess, HMODULE hModule)
 
 uintptr_t PatternScanning::PatternScan(BYTE* pattern, char* mask) {
 	MODULEINFO moduleInfo{};
-	BYTE* moduleContent{};
 	uintptr_t signatureIndex{};
-	uintptr_t signatureOffset{};
 
 	::GetModuleInformation(this->_hProcess, this->_hModule, &moduleInfo, sizeof(moduleInfo));
-	moduleContent = new BYTE[moduleInfo.SizeOfImage];
-
+	const auto moduleContent = (std::uint8_t*)this->_hModule;
+	
 	if (moduleContent == NULL)
 		exit(1);
 
-	if (!::ReadProcessMemory(this->_hProcess, (void*)this->_hModule, (void*)moduleContent, (uintptr_t)moduleInfo.SizeOfImage, NULL)) {
-		delete[] moduleContent;
-		exit(1);
-	}
-
 	signatureIndex = this->FindPattern(moduleContent, moduleInfo.SizeOfImage, pattern, mask);
 
-	if (!signatureIndex) {
-		delete[] moduleContent;
+	if (!signatureIndex)
 		exit(1);
-	}
 
-	memcpy(&signatureOffset, &moduleContent[signatureIndex], sizeof(DWORD));
-	delete[] moduleContent;
-
-	return signatureOffset;
+	return reinterpret_cast<uintptr_t>(&moduleContent[signatureIndex]) - (uintptr_t)this->_hModule;
 }
 
 /*
@@ -64,7 +52,7 @@ uintptr_t PatternScanning::PatternScan(BYTE* pattern, char* mask) {
 		an index where the offset is located in the byte array of the module content
 */
 
-uintptr_t PatternScanning::FindPattern(BYTE* moduleContent, unsigned int moduleSize, BYTE* pattern, char* mask) {
+unsigned PatternScanning::FindPattern(std::uint8_t* moduleContent, unsigned int moduleSize, BYTE* pattern, char* mask) {
 	bool flag = true;
 
 	for (unsigned i{}; i < moduleSize; i++) {
