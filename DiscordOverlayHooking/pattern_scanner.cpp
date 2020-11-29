@@ -41,7 +41,7 @@ uintptr_t PatternScanning::PatternScan(BYTE* pattern, char* mask) {
 	if (!signatureIndex)
 		exit(1);
 
-	return reinterpret_cast<uintptr_t>(&moduleContent[signatureIndex]) - (uintptr_t)this->_hModule;
+	return reinterpret_cast<uintptr_t>(&moduleContent[signatureIndex]);
 }
 
 /*
