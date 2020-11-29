@@ -11,8 +11,8 @@ public:
 	PatternScanning() = default;
 	PatternScanning(HANDLE hProcess, HMODULE hModule);
 
-	uintptr_t PatternScan(BYTE* pattern, char* mask);
-	unsigned FindPattern(std::uint8_t* moduleContent, unsigned int moduleSize, BYTE* pattern, char* mask);
+	uintptr_t PatternScan(std::uint8_t* pattern, char* mask);
+	unsigned FindPattern(std::uint8_t* moduleContent, unsigned int moduleSize, std::uint8_t* pattern, char* mask);
 
 private:
 	HANDLE _hProcess;

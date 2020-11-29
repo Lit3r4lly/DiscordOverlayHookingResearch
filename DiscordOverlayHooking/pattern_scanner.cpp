@@ -26,7 +26,7 @@ PatternScanning::PatternScanning(HANDLE hProcess, HMODULE hModule)
 		the desired address
 */
 
-uintptr_t PatternScanning::PatternScan(BYTE* pattern, char* mask) {
+uintptr_t PatternScanning::PatternScan(std::uint8_t* pattern, char* mask) {
 	MODULEINFO moduleInfo{};
 	uintptr_t signatureIndex{};
 
@@ -52,7 +52,7 @@ uintptr_t PatternScanning::PatternScan(BYTE* pattern, char* mask) {
 		an index where the offset is located in the byte array of the module content
 */
 
-unsigned PatternScanning::FindPattern(std::uint8_t* moduleContent, unsigned int moduleSize, BYTE* pattern, char* mask) {
+unsigned PatternScanning::FindPattern(std::uint8_t* moduleContent, unsigned int moduleSize, std::uint8_t* pattern, char* mask) {
 	bool flag = true;
 
 	for (unsigned i{}; i < moduleSize; i++) {
