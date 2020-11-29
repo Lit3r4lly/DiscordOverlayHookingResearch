@@ -6,7 +6,7 @@ void HookEx() {
     const auto hProcess = ::GetCurrentProcess();
     const auto hModule = ::GetModuleHandle("DiscordHook64.dll");
     PatternScanning newObj(hProcess, hModule);
-    
+
     const auto createHookAddr = newObj.PatternScan((std::uint8_t*)"\x40\x53\x55\x56\x57\x41\x54\x41\x56\x41\x57\x48\x83\xEC\x60", (char*)"xxxxxxxxxxxxxxx");
     const auto enableHookAddr = newObj.PatternScan((std::uint8_t*)"\x48\x89\x5C\x24\x00\x48\x89\x6C\x24\x00\x48\x89\x74\x24\x00\x57\x41\x56\x41\x57\x48\x83\xEC\x20\x33\xF6\x8B\xFA", (char*)"xxxx?xxxx?xxxx?xxxxxxxxxxxxx");
     const auto enableHookQueueAddr = newObj.PatternScan((std::uint8_t*)"\x48\x89\x5C\x24\x00\x48\x89\x6C\x24\x00\x48\x89\x7C\x24\x00\x41\x57", (char*)"xxxx?xxxx?xxxx?xx");
@@ -19,10 +19,10 @@ void HookEx() {
     std::cout << "[!] Starting to hook discord overlay..." << '\n';
 
     std::cout << "[?] Process handle - 0x" << (void*)hProcess << '\n';
-    std::cout << "[?] DiscordHook64.dll handle - 0x" << (void*)hModule << '\n';
+    std::cout << "[?] DiscordHook64.dll handle - 0x" << (void*)hModule << '\n\n';
 
     std::cout << "[-] Create Hook absolue address - 0x" << (void*)(createHookAddr) << '\n';
-    std::cout << "[-] Enable Hook absolue address - 0x" << (void*)(enableHookAddr)<< '\n';
+    std::cout << "[-] Enable Hook absolue address - 0x" << (void*)(enableHookAddr) << '\n';
     std::cout << "[-] Enable Hook Queue absolue address - 0x" << (void*)(enableHookQueueAddr) << '\n';
     std::cout << "[-] Present absolue address - 0x" << (void*)(presentAddr) << '\n';
 
@@ -41,8 +41,8 @@ void HookEx() {
 }
 
 BOOL APIENTRY DllMain(HMODULE hModule,
-                    DWORD  ul_reason_for_call,
-                    LPVOID lpReserved
+    DWORD  ul_reason_for_call,
+    LPVOID lpReserved
 )
 {
     switch (ul_reason_for_call)
