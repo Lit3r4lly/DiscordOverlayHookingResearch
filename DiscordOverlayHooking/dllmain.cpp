@@ -1,13 +1,17 @@
 ﻿#include "pch.h"
 #include "pattern_scanner.h"
+#include "discord_hooks.h"
 
 void HookEx() {
     const auto hProcess = ::GetCurrentProcess();
     const auto hModule = ::GetModuleHandle("DiscordHook64.dll");
-
-    BYTE fnCreateHookPattern[] = "\x40\x53\x55\x56\x57\x41\x54\x41\x56\x41\x57\x48\x83\xEC\x60";
-    char fnCreateHookMask[] = "xxxxxxxxxxxxxxx";
-    uintptr_t functionAddr{};
+    PatternScanning newObj(hProcess, hModule);
+    
+    const auto createHookAddr = newObj.PatternScan((BYTE*)"\x40\x53\x55\x56\x57\x41\x54\x41\x56\x41\x57\x48\x83\xEC\x60", (char*)"xxxxxxxxxxxxxxx");
+    const auto enableHookAddr = newObj.PatternScan((BYTE*)"\x48\x89\x5C\x24\x00\x48\x89\x6C\x24\x00\x48\x89\x74\x24\x00\x57\x41\x56\x41\x57\x48\x83\xEC\x20\x33\xF6\x8B\xFA", (char*)"xxxx?xxxx?xxxx?xxxxxxxxxxxxx");
+    const auto enableHookQueueAddr = newObj.PatternScan((BYTE*)"\x48\x89\x5C\x24\x00\x48\x89\x6C\x24\x00\x48\x89\x7C\x24\x00\x41\x57", (char*)"xxxx?xxxx?xxxx?xx");
+    const auto presentAddr = newObj.PatternScan((BYTE*)"\x48\x89\x5C\x24\x00\x48\x89\x74\x24\x00\x57\x48\x83\xEC\x20\x48\x8B\xD9\x41\x8B\xF8", (char*)"xxxx?xxxx?xxxxxxxxxxx");
+    const auto originalPresent = (wrapPresent)nullptr;
 
     AllocConsole();
     freopen("CONOUT$", "w", stdout);
@@ -16,15 +20,16 @@ void HookEx() {
 
     std::cout << "[?] Process handle - 0x" << (void*)hProcess << '\n';
     std::cout << "[?] DiscordHook64.dll handle - 0x" << (void*)hModule << '\n';
-    std::cout << "[?] Pattern - ";
-    for (const auto& val : fnCreateHookPattern) printf("\\x%.2x", val);
-    std::cout << '\n' << "[?] Mask - " << fnCreateHookMask << '\n';
 
-    PatternScanning newObj(hProcess, hModule);
-    functionAddr = newObj.PatternScan(fnCreateHookPattern, fnCreateHookMask);
+    std::cout << "[-] Create Hook absolue address - 0x" << (void*)(createHookAddr) << '\n';
+    std::cout << "[-] Enable Hook absolue address - 0x" << (void*)(enableHookAddr)<< '\n';
+    std::cout << "[-] Enable Hook Queue absolue address - 0x" << (void*)(enableHookQueueAddr) << '\n';
+    std::cout << "[-] Present absolue address - 0x" << (void*)(presentAddr) << '\n';
 
-    std::cout << "[-] CreateHook relative address - 0x" << (void*)functionAddr << '\n';
-    std::cout << "[-] CreateHook absolute address - 0x" << (void*)(functionAddr + (uintptr_t)hModule) << '\n';
+    DiscordHook myDis;
+    myDis.CreateHook((LPVOID)presentAddr, (LPVOID)hookedPresentFunction, (LPVOID*)&originalPresent, createHookAddr);
+    myDis.EnableHook((LPVOID)presentAddr, enableHookAddr);
+    myDis.EnableHookQueue(enableHookQueueAddr);
 
     std::cout << "\n[!] Finished, you can close the console right now." << '\n';
     system("PAUSE");
