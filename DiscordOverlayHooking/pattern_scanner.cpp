@@ -6,8 +6,6 @@
 	In:
 		hProcess - target process handle
 		hModule - target module handle
-		pattern - scanned pattern (pattern scanning)
-		mask - scanned mask (pattern scanning)
 
 	Out:
 		None
@@ -52,7 +50,7 @@ uintptr_t PatternScanning::PatternScan(std::uint8_t* pattern, char* mask) {
 		an index where the offset is located in the byte array of the module content
 */
 
-unsigned PatternScanning::FindPattern(std::uint8_t* moduleContent, unsigned int moduleSize, std::uint8_t* pattern, char* mask) {
+uintptr_t PatternScanning::FindPattern(std::uint8_t* moduleContent, uintptr_t moduleSize, std::uint8_t* pattern, char* mask) {
 	bool flag = true;
 
 	for (unsigned i{}; i < moduleSize; i++) {
