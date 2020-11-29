@@ -19,17 +19,17 @@ void HookEx() {
     std::cout << "[!] Starting to hook discord overlay..." << '\n';
 
     std::cout << "[?] Process handle - 0x" << (void*)hProcess << '\n';
-    std::cout << "[?] DiscordHook64.dll handle - 0x" << (void*)hModule << '\n\n';
+    std::cout << "[?] DiscordHook64.dll handle - 0x" << (void*)hModule << '\n' << '\n';
 
     std::cout << "[-] Create Hook absolue address - 0x" << (void*)(createHookAddr) << '\n';
     std::cout << "[-] Enable Hook absolue address - 0x" << (void*)(enableHookAddr) << '\n';
     std::cout << "[-] Enable Hook Queue absolue address - 0x" << (void*)(enableHookQueueAddr) << '\n';
     std::cout << "[-] Present absolue address - 0x" << (void*)(presentAddr) << '\n';
 
-    DiscordHook myDis;
-    myDis.CreateHook((LPVOID)presentAddr, (LPVOID)hookedPresentFunction, (LPVOID*)&originalPresent, createHookAddr);
-    myDis.EnableHook((LPVOID)presentAddr, enableHookAddr);
-    myDis.EnableHookQueue(enableHookQueueAddr);
+    DiscordHook discord;
+    discord.CreateHook((LPVOID)presentAddr, (LPVOID)hookedPresentFunction, (LPVOID*)&originalPresent, createHookAddr);
+    discord.EnableHook((LPVOID)presentAddr, enableHookAddr);
+    discord.EnableHookQueue(enableHookQueueAddr);
 
     std::cout << "\n[!] Finished, you can close the console right now." << '\n';
     system("PAUSE");
