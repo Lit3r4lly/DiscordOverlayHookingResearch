@@ -1,6 +1,6 @@
 # DiscordOverlayHookingResearch
 
-This research is about Discord overlay hooking library within written abuse module which made an "hook to hook" situation.  
+This research is about Discord overlay hooking library with implementation of written abuse module which made an "hook to hook" situation.  
 Because Discord's hook module (DiscordHook64.dll) uses the Minhook library, including Pattern scanning technique we can find the functions addresses (minhook calls).  
 After we get these addresses we can call these functions and hook the original functions. 
 Bottom line, we getting code execution by the discord hook module which make us available to make cheats undetectable (couple of AC's already patched the Discord's overlay feature and block this..).
