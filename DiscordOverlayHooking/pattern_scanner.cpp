@@ -13,10 +13,10 @@
 
 PatternScanning::PatternScanning(HANDLE hProcess, HMODULE hModule)
 {
-	if (hProcess != INVALID_HANDLE_VALUE)
+	if (hProcess != nullptr)
 		this->_hProcess = hProcess;
 
-	if (hModule != INVALID_HANDLE_VALUE)
+	if (hModule != nullptr)
 		this->_hModule = hModule;
 }
 
@@ -42,7 +42,7 @@ uintptr_t PatternScanning::PatternScan(const std::uint8_t* pattern, const std::s
 	signatureIndex = this->FindPattern(moduleContent, moduleInfo.SizeOfImage, pattern, mask);
 
 	if (!signatureIndex)
-		throw "[!] Failed to get the module content\n";
+		throw "[!] Failed to get the signature offset\n";
 
 	return reinterpret_cast<uintptr_t>(&moduleContent[signatureIndex]);
 }
