@@ -18,5 +18,4 @@ public:
 private:
 	HANDLE _hProcess;
 	HMODULE _hModule;
-
 };
