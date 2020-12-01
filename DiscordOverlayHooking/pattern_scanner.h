@@ -10,11 +10,10 @@
 class PatternScanning
 {
 public:
-	PatternScanning() = default;
 	PatternScanning(HANDLE hProcess, HMODULE hModule);
 
-	uintptr_t PatternScan(std::uint8_t* pattern, char* mask);
-	uintptr_t FindPattern(std::uint8_t* moduleContent, uintptr_t moduleSize, std::uint8_t* pattern, char* mask);
+	uintptr_t PatternScan(const std::uint8_t* pattern, const std::string& mask);
+	UINT FindPattern(const std::uint8_t* moduleContent, const size_t moduleSize, const std::uint8_t* pattern, const std::string& mask);
 
 private:
 	HANDLE _hProcess;

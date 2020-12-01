@@ -12,8 +12,13 @@
 */
 
 PatternScanning::PatternScanning(HANDLE hProcess, HMODULE hModule)
-	: _hProcess(hProcess), _hModule(hModule)
-{}
+{
+	if (hProcess != INVALID_HANDLE_VALUE)
+		this->_hProcess = hProcess;
+
+	if (hModule != INVALID_HANDLE_VALUE)
+		this->_hModule = hModule;
+}
 
 /*
 	This function manages the whole pattern scanning progress
@@ -24,20 +29,20 @@ PatternScanning::PatternScanning(HANDLE hProcess, HMODULE hModule)
 		the desired address
 */
 
-uintptr_t PatternScanning::PatternScan(std::uint8_t* pattern, char* mask) {
+uintptr_t PatternScanning::PatternScan(const std::uint8_t* pattern, const std::string& mask) {
 	MODULEINFO moduleInfo{};
 	uintptr_t signatureIndex{};
 
 	::GetModuleInformation(this->_hProcess, this->_hModule, &moduleInfo, sizeof(moduleInfo));
 	const auto moduleContent = (std::uint8_t*)this->_hModule;
-	
-	if (moduleContent == NULL)
-		exit(1);
+
+	if (moduleContent == nullptr)
+		throw "[!] Failed to get the module content\n";
 
 	signatureIndex = this->FindPattern(moduleContent, moduleInfo.SizeOfImage, pattern, mask);
 
 	if (!signatureIndex)
-		exit(1);
+		throw "[!] Failed to get the module content\n";
 
 	return reinterpret_cast<uintptr_t>(&moduleContent[signatureIndex]);
 }
@@ -50,13 +55,13 @@ uintptr_t PatternScanning::PatternScan(std::uint8_t* pattern, char* mask) {
 		an index where the offset is located in the byte array of the module content
 */
 
-uintptr_t PatternScanning::FindPattern(std::uint8_t* moduleContent, uintptr_t moduleSize, std::uint8_t* pattern, char* mask) {
+UINT PatternScanning::FindPattern(const std::uint8_t* moduleContent, const size_t moduleSize, const std::uint8_t* pattern, const std::string& mask) {
 	bool flag = true;
 
-	for (unsigned i{}; i < moduleSize; i++) {
+	for (unsigned i{}; i < moduleSize - mask.length(); i++) {
 		flag = true;
 
-		for (unsigned j{}; j < strlen(mask); j++) {
+		for (unsigned j{}; j < mask.length(); j++) {
 			if (mask[j] == '?')
 				continue;
 
