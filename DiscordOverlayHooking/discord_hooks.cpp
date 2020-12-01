@@ -9,7 +9,7 @@
 */
 
 uintptr_t DiscordHook::CreateHook(LPVOID pTarget, LPVOID pDetour, LPVOID* ppOriginal, uintptr_t createHookAddr) {
-	auto myCreareHook = (wrapCreateHook)createHookAddr;
+	auto myCreareHook = reinterpret_cast<wrapCreateHook>(createHookAddr);
 	return myCreareHook(pTarget, pDetour, ppOriginal);
 }
 
@@ -24,7 +24,7 @@ uintptr_t DiscordHook::CreateHook(LPVOID pTarget, LPVOID pDetour, LPVOID* ppOrig
 */
 
 uintptr_t DiscordHook::EnableHook(LPVOID pTarget, uintptr_t enableHookAddr) {
-	auto myEnableHook = (wrapEnableHook)enableHookAddr;
+	auto myEnableHook = reinterpret_cast<wrapEnableHook>(enableHookAddr);
 	return myEnableHook(pTarget);
 }
 
@@ -38,13 +38,13 @@ uintptr_t DiscordHook::EnableHook(LPVOID pTarget, uintptr_t enableHookAddr) {
 */
 
 uintptr_t DiscordHook::EnableHookQueue(uintptr_t enableHookQueueAddr) {
-	auto myEnableHook = (wrapEnableHookQueue)enableHookQueueAddr;
+	auto myEnableHook = reinterpret_cast<wrapEnableHookQueue>(enableHookQueueAddr);
 	return myEnableHook();
 }
 
 HRESULT hookedPresentFunction(IDXGISwapChain* dxSwapChain, UINT syncInterval, UINT flags, uintptr_t presentAddr) {
 	MessageBoxA(nullptr, "Got hooked!", "Hi!", MB_OK);
-	auto originalPresent = (wrapPresent)presentAddr;
+	auto originalPresent = reinterpret_cast<wrapPresent>(presentAddr);
 
 	return originalPresent(dxSwapChain, syncInterval, flags);
 }
