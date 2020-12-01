@@ -3,9 +3,6 @@
 #include "discord_hooks.h"
 
 void HookEx() {
-    AllocConsole();
-    freopen("CONOUT$", "w", stdout);
-
     uintptr_t createHookAddr{};
     uintptr_t enableHookAddr{};
     uintptr_t enableHookQueueAddr{};
@@ -25,8 +22,11 @@ void HookEx() {
     const auto hProcess = ::GetCurrentProcess();
     const auto hModule = ::GetModuleHandle("DiscordHook64.dll");
 
-    if (hModule == INVALID_HANDLE_VALUE) {
-        std::cerr << "Invalid module handle!" << '\n';
+    AllocConsole();
+    freopen("CONOUT$", "w", stdout);
+
+    if (hModule == nullptr) {
+        std::cout << "Invalid module handle!" << '\n';
         system("pause");
 
         fclose(stdout);
@@ -34,8 +34,8 @@ void HookEx() {
         return;
     }
 
-    if (hProcess == INVALID_HANDLE_VALUE) {
-        std::cerr << "Invalid process handle!" << '\n';
+    if (hProcess == nullptr) {
+        std::cout << "Invalid process handle!" << '\n';
         system("pause");
 
         fclose(stdout);
