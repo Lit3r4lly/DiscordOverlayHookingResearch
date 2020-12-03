@@ -2,7 +2,7 @@
 
 This research is about Discord overlay hooking library within written abuse module which made an "hook to hook" situation because Discord's hook module uses the Minhook library, including Pattern scanning technique we can find the functions addresses (minhook calls).  
 After we get these addresses we can call these functions and hook the original functions. 
-Bottom line, we getting code execution by the discord hook module which make us available to make cheats undetectable (couple of AC's already patched the Discord's overlay feature and block this..).
+Bottom line, we getting code execution by the discord hook module which make us available to make cheats undetectable (couple of AC's already patched the Discord's overlay feature and have blocked this..).
 
 ## Remarks
 
@@ -19,8 +19,8 @@ Enjoy!
 
 ## What is Pattern Scanning
 
-Pattern Scanning is a technique which made for extracting offsets from modules contents and more specifically.
-We are implementing this technique by looking for the surrounding instructions code (bytes) and by that getting the function address.
+Pattern Scanning is a technique which made for extracting addresses from modules contents.  
+We are implementing this technique by looking for the surrounding instructions code (bytes) and by that getting the functions addresses.
 
 **For pattern scanning we need two main elements:**  
 `Pattern` - a pattern is a number of instructions that are represented by a byte sequence and includes a specific r/m64 instruction that contains the offset as mentioned above.  
@@ -33,7 +33,7 @@ Mask -  `x????xxxxxxxxxx`
 
 ## Build
 
-DiscordOverlyHooking can be built with Visual Studio 2019, by opening the .sin file and build the project (Ctrl+Shift+B) in a Release Mode or Debug Mode, whatever you want to (x64)
+DiscordOverlyHooking can be built with Visual Studio 2019, by opening the .sln file and build the project (Ctrl+Shift+B) in a Release Mode or Debug Mode, whatever you want to (x64)
 
 ## Issues
 
